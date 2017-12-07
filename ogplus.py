@@ -1,6 +1,7 @@
 import json
 import discord
 import asyncio
+import random
 import string
 import requests
 
@@ -13,6 +14,9 @@ client = discord.Client()
 # Commands
 TEST_CMD = "!test"
 CHECK_CMD = "!check"
+
+def generate_pw(size=16, chars=string.ascii_uppercase + string.digits + string.ascii_lowercase):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 def check_steam(name):
 	from bs4 import BeautifulSoup
@@ -39,6 +43,29 @@ def check_twitter(name):
 	if obj['valid'] is True:
 		return True
 
+def check_instagram(name):
+	url = "https://www.instagram.com/accounts/web_create_ajax/attempt/"
+	s = requests.Session()
+	r = s.get(url)
+	cookie = r.cookies['csrftoken']
+
+	headers = {
+        "referer":"https://www.instagram.com",
+        "x-csrftoken": cookie
+    }
+
+	payload = {
+		"email":"no-reply@og.plus",
+		"username": name,
+		"password": generate_pw(),
+		"first_name": name
+    }
+
+	response = s.post(url, data=payload, headers=headers, cookies=cookie)
+	obj = response.json()
+	if obj['dryrun_passed'] is True:
+		return True
+
 async def on_ready():
 	print('Logged in as')
 	print(client.user.name)
@@ -50,17 +77,25 @@ async def on_message(message):
 	if message.content.startswith(TEST_CMD):
 		await client.send_message(message.channel, "testing 123")
 	if message.content.startswith(CHECK_CMD):
-		name = message.content[len(CHECK_CMD):].strip()
+		name = message.content[len(CHECK_CMD):].strip().replace(' ', '')
 		if check_steam(name):
-			await client.send_message(message.channel, "`id/%s` is available on `Steam`" % name)
+			msg = "id/%s is available on Steam" % name
+			await client.send_message(message.channel, embed=msg)
 		else:
-			await client.send_message(message.channel, "`id/%s` is taken on `Steam`" % name)
+			msg = "id/%s is taken on Steam" % name
+			await client.send_message(message.channel, embed=msg)
 		if check_twitter(name):
-			await client.send_message(message.channel, "`%s` is available on `Twitter`" % name)
+			msg = "%s is available on Twitter" % name
+			await client.send_message(message.channel, embed=msg)
 		else:
-			await client.send_message(message.channel, "`%s` is taken on `Twitter`" % name)
-
-		
+			msg = "%s is taken on Twitter" % name
+			await client.send_message(message.channel, embed=msg)
+		if check_instagram(name):
+			msg = "%s is available on Instagram" % name
+			await client.send_message(message.channel, embed=msg)
+		else:
+			msg = "%s is taken on Instagram" % name
+			await client.send_message(message.channel, embed=msg)
 
 # @client.event
 # async def on_reaction_add(reaction, user):
@@ -69,10 +104,5 @@ async def on_message(message):
 # 			if reaction.emoji in emojis:
 # 				if reaction.emoji.name != "ogplus":
 # 						await client.send_message(reaction.message.channel, reaction.emoji.name)
-
-@client.event
-async def on_member_join(member):
-	msg = "%s has joined the OG+ community!" % member.name
-	await client.send_message(client.get_channel(config['join_log_channelID']), msg)
 
 client.run(config['token'])
