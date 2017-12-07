@@ -80,22 +80,22 @@ async def on_message(message):
 		name = message.content[len(CHECK_CMD):].strip().replace(' ', '')
 		if check_steam(name):
 			msg = "id/%s is available on Steam" % name
-			await client.send_message(message.channel, embed=msg)
+			await client.send_message(message.channel, msg)
 		else:
 			msg = "id/%s is taken on Steam" % name
-			await client.send_message(message.channel, embed=msg)
+			await client.send_message(message.channel, msg)
 		if check_twitter(name):
 			msg = "%s is available on Twitter" % name
-			await client.send_message(message.channel, embed=msg)
+			await client.send_message(message.channel, msg)
 		else:
 			msg = "%s is taken on Twitter" % name
-			await client.send_message(message.channel, embed=msg)
+			await client.send_message(message.channel, msg)
 		if check_instagram(name):
 			msg = "%s is available on Instagram" % name
-			await client.send_message(message.channel, embed=msg)
+			await client.send_message(message.channel, msg)
 		else:
 			msg = "%s is taken on Instagram" % name
-			await client.send_message(message.channel, embed=msg)
+			await client.send_message(message.channel, msg)
 
 # @client.event
 # async def on_reaction_add(reaction, user):
