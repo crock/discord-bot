@@ -61,7 +61,7 @@ def check_instagram(name):
 		"first_name": name
     }
 
-	response = s.post(url, data=payload, headers=headers, cookies=cookie)
+	response = s.post(url, data=payload, headers=headers)
 	obj = response.json()
 	if obj['dryrun_passed'] is True:
 		return True
