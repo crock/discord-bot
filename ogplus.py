@@ -5,7 +5,7 @@ import random
 import string
 import requests
 
-fp = open('config.json', "r")
+fp = open('config.json', 'r')
 config = json.load(fp)
 fp.close()
 
